@@ -1,5 +1,7 @@
-package com.macro.mall.common.exception;
+package com.zhangjun.exception;
 
+
+import com.zhangjun.common.api.IErrorCode;
 
 /**
  * 自定义API异常

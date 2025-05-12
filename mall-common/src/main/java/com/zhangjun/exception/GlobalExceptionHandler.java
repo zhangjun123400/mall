@@ -1,7 +1,7 @@
-package com.macro.mall.common.exception;
+package com.zhangjun.exception;
 
-import cn.hutool.core.util.StrUtil;
-import com.macro.mall.common.api.CommonResult;
+import com.zhangjun.common.api.CommonResult;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -60,7 +60,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = SQLSyntaxErrorException.class)
     public CommonResult handleSQLSyntaxErrorException(SQLSyntaxErrorException e) {
         String message = e.getMessage();
-        if (StrUtil.isNotEmpty(message) && message.contains("denied")) {
+        if (StringUtils.isNotEmpty(message) && message.contains("denied")) {
             message = "演示环境暂无修改权限，如需修改数据可本地搭建后台服务！";
         }
         return CommonResult.failed(message);

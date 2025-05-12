@@ -1,6 +1,6 @@
-package com.macro.mall.common.config;
+package com.zhangjun.config;
 
-import com.macro.mall.common.domain.SwaggerProperties;
+import com.zhangjun.domain.SwaggerProperties;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;

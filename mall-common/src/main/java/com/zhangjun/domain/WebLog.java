@@ -1,4 +1,4 @@
-package com.macro.mall.common.domain;
+package com.zhangjun.domain;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
