@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.zhangjun</groupId>
+        <groupId>com.zhangjun.mall</groupId>
         <artifactId>mall_base</artifactId>
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath> <!-- lookup parent from repository -->
@@ -19,7 +19,7 @@
     <dependencies>
 
         <dependency>
-            <groupId>com.zhangjun</groupId>
+            <groupId>com.zhangjun.mall</groupId>
             <artifactId>mall-common</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>

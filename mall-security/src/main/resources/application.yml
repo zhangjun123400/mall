@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: mall-security
+
+
+
+secure:
+  ignored:
+    urls: #访问白名单
+      - /swagger-ui/**
+      - /v3/api-docs/**
+      - /swagger-ui.html
+      - /webjars/**
+      - /user/login

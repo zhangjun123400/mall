@@ -2,8 +2,21 @@ spring:
   application:
     name: mall-common
 
+
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT-8
+    default-property-inclusion: non_null
+    serialization:
+      indent-output: true
+      fail-on-empty-beans: false
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
   api-docs:
     path: /v3/api-docs
+
+
+
+
