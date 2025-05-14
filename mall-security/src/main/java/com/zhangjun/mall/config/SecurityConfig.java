@@ -3,29 +3,20 @@ package com.zhangjun.mall.config;
 import com.zhangjun.mall.filter.JwtAuthenticationTokenFilter;
 import com.zhangjun.mall.handler.AnonymousAuthenticationHandler;
 import com.zhangjun.mall.handler.CustomerAccessDeniedHandler;
-import com.zhangjun.mall.handler.DynamicAuthorizationManager;
 import com.zhangjun.mall.handler.LoginFailureHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.authentication.configuration.EnableGlobalAuthentication;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -47,9 +38,6 @@ public class SecurityConfig {
     //客户端进行认证数据的提交时出现异常，或者是匿名用户访问受限资源的处理器
     @Autowired
     private AnonymousAuthenticationHandler anonymousAuthenticationHandler;
-
-    @Autowired
-    private DynamicAuthorizationManager dynamicAuthorizationManager;
 
     //用户认证校验失败处理器
     @Autowired
@@ -88,7 +76,7 @@ public class SecurityConfig {
         //配置关闭csrf机制
         http.csrf(csrf -> csrf.disable());
 
-        //用户人认证校验失败处理器loginFailureHandler
+        //用户认证校验失败处理器loginFailureHandler
         http.formLogin(configure -> configure.failureHandler(loginFailureHandler));
 
         //STATELESS(无状态)：表示应用层程序是无状态的，不会创建会话
@@ -101,8 +89,7 @@ public class SecurityConfig {
             auth.requestMatchers(ignordList.toArray(new String[0]))
                     .permitAll()
                     .anyRequest()
-                    .access(dynamicAuthorizationManager)
-                    //.authenticated()
+                    .authenticated()
         );
 
         //把token校验过滤器添加到过滤器链中

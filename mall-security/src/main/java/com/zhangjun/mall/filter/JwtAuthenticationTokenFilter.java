@@ -3,11 +3,9 @@ package com.zhangjun.mall.filter;
 import com.alibaba.fastjson2.JSON;
 import com.zhangjun.mall.utils.JwtUtil;
 import com.zhangjun.mall.config.IgnoreUrlsConfig;
-import com.zhangjun.mall.domain.vo.LoginUser;
 import com.zhangjun.mall.exception.CustomerAuthenticationException;
 import com.zhangjun.mall.handler.LoginFailureHandler;
 import io.jsonwebtoken.Claims;
-import io.netty.util.internal.StringUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,16 +15,14 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.rmi.RemoteException;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @Author zhangjun
@@ -44,6 +40,9 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
     @Autowired
     private IgnoreUrlsConfig ignoreUrlsConfig;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -106,13 +105,13 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         }
 
 
-        LoginUser loginUser = null;
+        UserDetails loginUser = null;
         //校验令牌
         try {
-            Claims claims =JwtUtil.parseJWT(token);
+            Claims claims =jwtUtil.parseJWT(token);
             String subject = claims.getSubject();
             //把字符串专程loginUser对象
-            loginUser =JSON.parseObject(subject, LoginUser.class);
+            loginUser =JSON.parseObject(subject, loginUser.getClass());
         } catch (Exception e) {
             throw new CustomerAuthenticationException("token校验失败");
         }

@@ -1,5 +1,6 @@
 package com.zhangjun.mall.config;
 
+import com.zhangjun.common.config.BaseRedisConfig;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Configuration;
 
