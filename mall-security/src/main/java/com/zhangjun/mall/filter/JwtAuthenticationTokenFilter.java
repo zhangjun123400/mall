@@ -1,7 +1,8 @@
 package com.zhangjun.mall.filter;
 
 import com.alibaba.fastjson2.JSON;
-import com.zhangjun.mall.utils.JwtUtil;
+import com.zhangjun.common.service.RedisService;
+import com.zhangjun.mall.utils.JwtTokenUtil;
 import com.zhangjun.mall.config.IgnoreUrlsConfig;
 import com.zhangjun.mall.exception.CustomerAuthenticationException;
 import com.zhangjun.mall.handler.LoginFailureHandler;
@@ -36,28 +37,19 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
     private LoginFailureHandler loginFailureHandler;
 
     @Autowired
-    private RedisTemplate redisTemplate;
+    private RedisService redisService;
 
     @Autowired
     private IgnoreUrlsConfig ignoreUrlsConfig;
 
     @Autowired
-    private JwtUtil jwtUtil;
+    private JwtTokenUtil jwtUtil;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
             String uri = request.getRequestURI();
             List<String> ignordList=ignoreUrlsConfig.getUrls();
-
-            /**
-             * ///判断如果是登陆接口
-                if (!uri.equals("/user/login")) {
-             this.validateToken(request);
-                }
-             */
-
-
             // 初始化路径匹配器
             AntPathMatcher pathMatcher = new AntPathMatcher();
 
@@ -71,7 +63,6 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
                 this.validateToken(request);
             }
         } catch (AuthenticationException e) {
-           // throw new RuntimeException(e);
             loginFailureHandler.onAuthenticationFailure(request, response, e);
         }
 
@@ -97,23 +88,29 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         {
            throw new CustomerAuthenticationException("token为空");
         }
+
         //redis进行校验
-        Object redisStr = redisTemplate.opsForValue().get("token_"+token);
+        Object redisStr = redisService.get("token_"+token);
 
         if (ObjectUtils.isEmpty(redisStr)) {
-            throw new CustomerAuthenticationException("token已经过期");
+            throw new CustomerAuthenticationException("redis中无,token已经过期");
         }
-
 
         UserDetails loginUser = null;
         //校验令牌
         try {
+
             Claims claims =jwtUtil.parseJWT(token);
             String subject = claims.getSubject();
-            //把字符串专程loginUser对象
-            loginUser =JSON.parseObject(subject, loginUser.getClass());
+            //把字符串转成loginUser对象
+            loginUser =JSON.parseObject(subject, UserDetails.class);
         } catch (Exception e) {
             throw new CustomerAuthenticationException("token校验失败");
+        }
+
+        if (!jwtUtil.validateToken(token,loginUser))
+        {
+            throw new CustomerAuthenticationException("token无效");
         }
 
         //把验证完获取到的用户信息在此放入springsecurity的上下文中

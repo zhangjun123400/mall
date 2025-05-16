@@ -2,7 +2,9 @@ package com.zhangjun.common.service.impl;
 
 import com.zhangjun.common.service.RedisService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
@@ -13,7 +15,13 @@ import java.util.concurrent.TimeUnit;
  * Redis操作Service实现类
  * Created by macro on 2020/3/3.
  */
+@Service
 public class RedisServiceImpl implements RedisService {
+
+
+    @Value("${redis.expire}")
+    private Long expire;
+
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
@@ -24,7 +32,7 @@ public class RedisServiceImpl implements RedisService {
 
     @Override
     public void set(String key, Object value) {
-        redisTemplate.opsForValue().set(key, value);
+        redisTemplate.opsForValue().set(key, value,expire,TimeUnit.SECONDS);
     }
 
     @Override

@@ -7,17 +7,23 @@ import com.zhangjun.mall.handler.LoginFailureHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.util.AntPathMatcher;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Author zhangjun
@@ -25,7 +31,8 @@ import java.util.List;
  * @Version 1.0
  */
 @Configuration
-@EnableMethodSecurity
+@EnableWebSecurity
+//@EnableMethodSecurity
 public class SecurityConfig {
 
     @Autowired
@@ -74,7 +81,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         //配置关闭csrf机制
-        http.csrf(csrf -> csrf.disable());
+        http.csrf(AbstractHttpConfigurer::disable);
 
         //用户认证校验失败处理器loginFailureHandler
         http.formLogin(configure -> configure.failureHandler(loginFailureHandler));
@@ -83,10 +90,11 @@ public class SecurityConfig {
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         List<String> ignordList=ignoreUrlsConfig.getUrls();
-
+        String[] whiteList = ignordList.toArray(new String[0]);
         //配置请求的拦截方式
         http.authorizeHttpRequests(auth ->
-            auth.requestMatchers(ignordList.toArray(new String[0]))
+            auth.requestMatchers(HttpMethod.OPTIONS).permitAll() // 放行预检请求
+                    .requestMatchers(whiteList)
                     .permitAll()
                     .anyRequest()
                     .authenticated()

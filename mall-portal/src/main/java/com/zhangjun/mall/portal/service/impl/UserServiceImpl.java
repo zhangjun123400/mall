@@ -6,8 +6,7 @@ import com.zhangjun.mall.mapper.UmsAdminMapper;
 import com.zhangjun.mall.model.UmsAdmin;
 import com.zhangjun.mall.portal.domain.vo.LoginUser;
 import com.zhangjun.mall.portal.service.UserService;
-import com.zhangjun.mall.utils.JwtUtil;
-import jakarta.annotation.Resource;
+import com.zhangjun.mall.utils.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,7 +14,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -36,7 +34,7 @@ public class UserServiceImpl extends ServiceImpl<UmsAdminMapper, UmsAdmin> imple
     private RedisTemplate redisTemplate;
 
     @Autowired
-    private JwtUtil jwtUtil;
+    private JwtTokenUtil jwtUtil;
 
     @Override
     public Map<String,Object> login(UmsAdmin user) {

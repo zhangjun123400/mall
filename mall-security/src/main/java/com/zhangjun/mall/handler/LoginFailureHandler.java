@@ -31,7 +31,7 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
         response.setContentType("application/json;charset=utf-8");
         ServletOutputStream outputStream = response.getOutputStream();
-        String message = "登陆失败";
+        String message;
         String result;
 
         //异常类型与错误信息映射

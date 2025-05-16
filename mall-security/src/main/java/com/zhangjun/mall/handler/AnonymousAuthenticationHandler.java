@@ -49,6 +49,14 @@ public class AnonymousAuthenticationHandler implements AuthenticationEntryPoint 
             //调用这个fastjson 进行CommonResult对象的序列化
             jsonString = JSON.toJSONString(CommonResult.forbidden("匿名用户无权限访问"), SerializerFeature.DisableCircularReferenceDetect);
 
+            // 获取完整的异常信息
+            String exceptionName = authException.getClass().getSimpleName();
+            String exceptionMessage = authException.getMessage();
+            System.out.println("=================");
+            System.out.println(exceptionName);
+            System.out.println(exceptionMessage);
+            System.out.println("=================");
+
         }
 
 

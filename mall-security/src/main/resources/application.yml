@@ -1,9 +1,3 @@
 spring:
   application:
     name: mall-security
-
-jwt:
-  tokenHeader: Authorization #JWT存储的请求头
-  secret: dongfeng  # 正确属性名
-  expiration: 1L       # 过期时间单位需明确（天/小时/分钟）:ml-citation{ref="5" data="citationList"}
-  tokenHead: 'Bearer '  #JWT负载中拿到开头
