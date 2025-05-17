@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  */
 @Configuration
 @EnableWebSecurity
-//@EnableMethodSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Autowired

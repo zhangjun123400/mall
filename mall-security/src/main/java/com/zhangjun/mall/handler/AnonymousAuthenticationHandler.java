@@ -30,6 +30,7 @@ public class AnonymousAuthenticationHandler implements AuthenticationEntryPoint 
         //设置客户端响应的内容类型
         response.setContentType("application/json;charset=utf-8");
 
+        //response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
         //通过输出流
         ServletOutputStream outputStream = response.getOutputStream();
 
@@ -49,17 +50,7 @@ public class AnonymousAuthenticationHandler implements AuthenticationEntryPoint 
             //调用这个fastjson 进行CommonResult对象的序列化
             jsonString = JSON.toJSONString(CommonResult.forbidden("匿名用户无权限访问"), SerializerFeature.DisableCircularReferenceDetect);
 
-            // 获取完整的异常信息
-            String exceptionName = authException.getClass().getSimpleName();
-            String exceptionMessage = authException.getMessage();
-            System.out.println("=================");
-            System.out.println(exceptionName);
-            System.out.println(exceptionMessage);
-            System.out.println("=================");
-
         }
-
-
 
         outputStream.write(jsonString.getBytes(StandardCharsets.UTF_8));
         outputStream.flush();

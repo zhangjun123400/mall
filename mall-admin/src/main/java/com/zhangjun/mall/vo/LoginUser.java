@@ -27,14 +27,14 @@ public class LoginUser implements UserDetails {
    private UmsAdmin umsAdmin;
 
    //权限列表
-   private List<UmsResource> list;//select delete
+   private List<String> list;//select delete
 
 
     //自定义一个权限列表的集合
     @JSONField(serialize=false)
     List<SimpleGrantedAuthority> authorities; //子类
 
-    public LoginUser(UmsAdmin umsAdmin, List<UmsResource> list) {
+    public LoginUser(UmsAdmin umsAdmin, List<String> list) {
         this.umsAdmin = umsAdmin;
         this.list = list;
     }
@@ -47,9 +47,10 @@ public class LoginUser implements UserDetails {
         }
         authorities = new ArrayList<>();
 
-        for (UmsResource umsResource :list)
+        for (String umsResource :list)
         {
-            SimpleGrantedAuthority authority = new SimpleGrantedAuthority(umsResource.getId()+":"+umsResource.getName());
+            //SimpleGrantedAuthority authority = new SimpleGrantedAuthority(umsResource.getId()+":"+umsResource.getName());
+            SimpleGrantedAuthority authority = new SimpleGrantedAuthority(umsResource);
             authorities.add(authority);
 
         };
@@ -77,13 +78,13 @@ public class LoginUser implements UserDetails {
     //账号是否没锁定
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return UserDetails.super.isAccountNonLocked();
     }
 
     //账号是否没有超时
     @Override
     public boolean isCredentialsNonExpired() {
-        return true;
+        return UserDetails.super.isCredentialsNonExpired();
     }
 
     //账号是否可用

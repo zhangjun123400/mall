@@ -15,9 +15,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.security.web.util.UrlUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.ObjectUtils;
 import org.springframework.validation.annotation.Validated;
@@ -65,8 +67,10 @@ public class UmsAdminController {
 
     @Operation(summary = "用户登陆")
     @RequestMapping(value = "/login",method = RequestMethod.POST)
-    public CommonResult login(@RequestBody UmsAdminParam umsAdminParam) {
+    @PreAuthorize("permitAll()")
+    public CommonResult login(@Validated @RequestBody UmsAdminParam umsAdminParam) {
         Map<String,String> map =  umsAdminService.login(umsAdminParam);
+
 
         if (!map.get("token").isEmpty() && !map.get("username").isEmpty())
         {
@@ -100,7 +104,8 @@ public class UmsAdminController {
     @Operation(summary = "获取当前登录用户信息")
     @RequestMapping(value = "/info",method = RequestMethod.GET)
     @ResponseBody
-    public CommonResult getAdminInfo(@RequestBody UmsAdminParam umsAdminParam){
+    @PreAuthorize("hasAuthority('/product/**')")
+    public CommonResult getAdminInfo(@Validated @RequestBody UmsAdminParam umsAdminParam){
         if (umsAdminParam==null){
             return CommonResult.unauthorized(null);
         }

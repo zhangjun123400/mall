@@ -1,7 +1,7 @@
 package com.zhangjun.mall.utils;
 
 import cn.hutool.core.date.DateUtil;
-import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson2.JSON;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -133,7 +133,9 @@ public class JwtTokenUtil {
         String userName;
         try {
             Claims claims = parseJWT(token);
-            userName=claims.getSubject();
+            String subject=claims.getSubject();
+            UserDetails loginUser = JSON.parseObject(subject, UserDetails.class);
+            userName = loginUser.getUsername();
         } catch (Exception e) {
             userName = null;
         }
@@ -151,12 +153,16 @@ public class JwtTokenUtil {
         return claims.getExpiration();
     }
 
+    private static Date getExpiration(Claims claims) {
+        return claims.getExpiration();
+    }
+
     /**
      * 判断token是否已经失效
      * @param token
      * @return
      */
-    private boolean isTokenExpired(String token){
+    public boolean isTokenExpired(String token){
         Date expiredDate = getExpiredDateFromToken(token);
         return expiredDate.before(new Date());
     }

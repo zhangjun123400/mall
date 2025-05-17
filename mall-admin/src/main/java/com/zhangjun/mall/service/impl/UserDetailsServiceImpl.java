@@ -3,9 +3,7 @@ package com.zhangjun.mall.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zhangjun.mall.dao.UmsAdminRoleRelationDao;
 import com.zhangjun.mall.mapper.UmsAdminMapper;
-import com.zhangjun.mall.mapper.UmsResourceMapper;
 import com.zhangjun.mall.model.UmsAdmin;
-import com.zhangjun.mall.model.UmsResource;
 import com.zhangjun.mall.vo.LoginUser;
 import jakarta.annotation.Resource;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -14,9 +12,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @Author zhangjun
@@ -35,7 +31,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        if (username.equals("")) {
+        if (username.isEmpty()) {
             throw new InternalAuthenticationServiceException("用户名为空");
         }
 
@@ -49,9 +45,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
 
         //2、赋权操作 活的数组 从数据库中获取
-        List<UmsResource> umsResourceList = umsAdminRoleRelationDao.getResourceListByAdminId(user.getId());
-
+        //List<UmsResource> umsResourceList = umsAdminRoleRelationDao.getResourceListByAdminId(user.getId());
+        List<String> urlList = umsAdminRoleRelationDao.getResourceListByAdminId1(user.getId());
         //3、返回UserDetails对象
-        return new LoginUser(user,umsResourceList);
+        return new LoginUser(user,urlList);
     }
 }

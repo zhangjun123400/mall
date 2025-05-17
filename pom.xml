@@ -19,8 +19,8 @@
 		<module>mall-common</module>
 		<module>mall-mbg</module>
 		<module>mall-security</module>
-		<module>mall-portal</module>
 		<module>mall-admin</module>
+		<module>mall-portal</module>
 	</modules>
 
 	<properties>

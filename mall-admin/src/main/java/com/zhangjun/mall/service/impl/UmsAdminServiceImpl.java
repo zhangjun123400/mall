@@ -96,16 +96,16 @@ public class UmsAdminServiceImpl extends ServiceImpl<UmsAdminMapper, UmsAdmin> i
         String loginUserString = JSON.toJSONString(loginUser);
 
         //生成令牌
-        String jwt = jwtTokenUtil.createJWT(loginUserString);
+        String token = jwtTokenUtil.createJWT(loginUserString);
 
         //jwt的键名
-        String tokenKey = "token_"+ jwt;
+        String tokenKey = "token_"+ token;
 
         //存储redis白名单
-        redisService.set(tokenKey,jwt);
+        redisService.set(tokenKey,token);
 
         Map<String,String> map = new HashMap<>();
-        map.put("token",jwt);
+        map.put("token",token);
         map.put("username",loginUser.getUsername());
 
         return map;

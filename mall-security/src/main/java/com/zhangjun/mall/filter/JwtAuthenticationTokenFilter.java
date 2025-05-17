@@ -17,6 +17,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.util.UrlUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.ObjectUtils;
@@ -34,6 +36,9 @@ import java.util.List;
 public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
     @Autowired
+    UserDetailsService userDetailsService;
+
+    @Autowired
     private LoginFailureHandler loginFailureHandler;
 
     @Autowired
@@ -48,6 +53,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
+
             String uri = request.getRequestURI();
             List<String> ignordList=ignoreUrlsConfig.getUrls();
             // 初始化路径匹配器
@@ -96,14 +102,17 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             throw new CustomerAuthenticationException("redis中无,token已经过期");
         }
 
-        UserDetails loginUser = null;
+        UserDetails loginUser;
+
         //校验令牌
         try {
 
-            Claims claims =jwtUtil.parseJWT(token);
-            String subject = claims.getSubject();
+            //Claims claims =jwtUtil.parseJWT(token);
+            //String subject = claims.getSubject();
             //把字符串转成loginUser对象
-            loginUser =JSON.parseObject(subject, UserDetails.class);
+            //loginUser =JSON.parseObject(subject, UserDetails.class);
+            String username = jwtUtil.getUserNameFromToken(token);
+            loginUser = userDetailsService.loadUserByUsername(username);
         } catch (Exception e) {
             throw new CustomerAuthenticationException("token校验失败");
         }
