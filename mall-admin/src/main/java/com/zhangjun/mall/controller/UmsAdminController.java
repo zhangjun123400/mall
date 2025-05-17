@@ -1,6 +1,7 @@
 package com.zhangjun.mall.controller;
 
 import cn.hutool.core.collection.CollUtil;
+import com.zhangjun.common.api.CommonPage;
 import com.zhangjun.common.api.CommonResult;
 import com.zhangjun.common.service.RedisService;
 import com.zhangjun.mall.dto.UmsAdminParam;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -155,4 +157,88 @@ public class UmsAdminController {
 
         return CommonResult.success("用户退出成功");
     }
+
+    @Operation(summary = "根据用户名或者姓名分页获取用户列表")
+    @RequestMapping(value = "/list",method = RequestMethod.POST)
+    @ResponseBody
+    public CommonResult<CommonPage<UmsAdmin>> list(@RequestParam(value = "keyword",required = false) String keyword,
+                                                   @RequestParam(value = "pageSize",defaultValue = "5") Integer pageSize,
+                                                   @RequestParam(value = "pageNum",defaultValue = "1") Integer pageNum) {
+        List<UmsAdmin> adminList = umsAdminService.list(keyword,pageSize,pageNum);
+        return CommonResult.success(CommonPage.restPage(adminList));
+    }
+
+    @Operation(summary = "删除指定用户信息")
+    @RequestMapping(value = "/delete/{id}",method = RequestMethod.POST)
+    @ResponseBody
+    public CommonResult delete(@PathVariable Long id){
+        int count = umsAdminService.delete(id);
+        if (count>0)
+        {
+            return CommonResult.success(count);
+        }
+        return CommonResult.failed();
+
+    }
+
+    @Operation(summary = "修改账号状态")
+    @RequestMapping(value = "/updateStatus/{id}",method = RequestMethod.POST)
+    @ResponseBody
+    public CommonResult update(@PathVariable Long id,@RequestParam(value = "status") Integer status ) {
+        UmsAdmin umsAdmin =new UmsAdmin();
+        umsAdmin.setStatus(status);
+        int count = umsAdminService.update(id,umsAdmin);
+        if (count>0){
+            return CommonResult.success(count);
+        }
+        return CommonResult.failed();
+    }
+
+    @Operation(summary = "获取指定用户的角色")
+    @RequestMapping(value = "/role/{adminId}",method = RequestMethod.GET)
+    @ResponseBody
+    public CommonResult<List<UmsRole>> getRoleList(@PathVariable Long adminId){
+        List<UmsRole> umsRoleList= umsAdminService.getRoleList(adminId);
+        return CommonResult.success(umsRoleList);
+    }
+
+
+    @Operation(summary = "给用户分配角色")
+    @RequestMapping(value = "/role/update",method = RequestMethod.POST)
+    @ResponseBody
+    public CommonResult updateRole(@RequestParam("adminId") Long adminId,
+                                   @RequestParam("roleIds") List<Long> roleIds){
+       int count = umsAdminService.updateRole(adminId,roleIds);
+       if (count>0)
+       {
+           return CommonResult.success(count);
+       }
+
+       return CommonResult.failed();
+    }
+
+
+    @Operation(summary = "获取指定用户信息")
+    @RequestMapping(value = "/{id}",method = RequestMethod.GET)
+    @ResponseBody
+    public CommonResult<UmsAdmin> getItem(@PathVariable Long id){
+        UmsAdmin umsAdmin =umsAdminService.getItem(id);
+        return CommonResult.success(umsAdmin);
+    }
+
+    @Operation(summary = "修改制定用户信息")
+    @RequestMapping(value = "/update/{id}",method = RequestMethod.POST)
+    @ResponseBody
+    public CommonResult update(@PathVariable Long id,@RequestBody UmsAdminParam umsAdminParam) {
+        UmsAdmin umsAdmin = new UmsAdmin();
+        BeanUtils.copyProperties(umsAdminParam,umsAdmin);
+        int count = umsAdminService.update(id,umsAdmin);
+        if (count>0){
+            return CommonResult.success(count);
+        }
+        return CommonResult.failed();
+    }
+
+
+
 }

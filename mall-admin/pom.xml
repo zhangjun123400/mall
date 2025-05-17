@@ -19,6 +19,16 @@
 			<groupId>com.zhangjun.mall</groupId>
 			<artifactId>mall-mbg</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>mybatis-spring-boot-starter</artifactId>
+					<groupId>org.mybatis.spring.boot</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>pagehelper-spring-boot-starter</artifactId>
+					<groupId>com.github.pagehelper</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>

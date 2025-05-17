@@ -27,7 +27,7 @@ public interface UmsAdminRoleRelationDao {
             "(#{item.adminId}, #{item.roleId})\n" +
             "</foreach>\n" +
             "</script>")
-    int insertList(@Param("list") List<UmsAdminRoleRelation> adminRoleRelationsList);
+    void insertList(@Param("list") List<UmsAdminRoleRelation> adminRoleRelationsList);
 
     /**
      * 获取用户所有角色

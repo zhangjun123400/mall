@@ -62,4 +62,5 @@ public class UmsAdmin implements Serializable {
     @Schema(description = "帐号启用状态：0->禁用；1->启用")
     @TableField("status")
     private Integer status;
+
 }

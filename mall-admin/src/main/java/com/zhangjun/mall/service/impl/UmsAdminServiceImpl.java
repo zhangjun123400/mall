@@ -1,7 +1,9 @@
 package com.zhangjun.mall.service.impl;
 
 import cn.hutool.core.date.LocalDateTimeUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageHelper;
@@ -13,6 +15,7 @@ import com.zhangjun.mall.mapper.UmsAdminLoginLogMapper;
 import com.zhangjun.mall.mapper.UmsAdminMapper;
 import com.zhangjun.mall.mapper.UmsAdminRoleRelationMapper;
 import com.zhangjun.mall.model.UmsAdmin;
+import com.zhangjun.mall.model.UmsAdminRoleRelation;
 import com.zhangjun.mall.model.UmsResource;
 import com.zhangjun.mall.model.UmsRole;
 import com.zhangjun.mall.service.UmsAdminCacheService;
@@ -25,14 +28,13 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @Author zhangjun
@@ -68,8 +70,8 @@ public class UmsAdminServiceImpl extends ServiceImpl<UmsAdminMapper, UmsAdmin> i
 
     @Override
     public UmsAdmin getAdminByUsername(String userName){
-        QueryWrapper<UmsAdmin> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("username", userName);
+        LambdaQueryWrapper<UmsAdmin> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(UmsAdmin::getUsername, userName);
 
         return umsAdminMapper.selectOne(queryWrapper);
 
@@ -120,8 +122,8 @@ public class UmsAdminServiceImpl extends ServiceImpl<UmsAdminMapper, UmsAdmin> i
         umsAdmin.setStatus(1);
 
         //查询是否有相同用户名的用户
-        QueryWrapper<UmsAdmin> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("username", umsAdmin.getUsername());
+        LambdaQueryWrapper<UmsAdmin> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(UmsAdmin::getUsername, umsAdmin.getUsername());
         UmsAdmin user =umsAdminMapper.selectOne(queryWrapper);
         if (Objects.nonNull(user)) {
             return null;
@@ -156,8 +158,8 @@ public class UmsAdminServiceImpl extends ServiceImpl<UmsAdminMapper, UmsAdmin> i
 
     @Override
     public UmsAdmin getItem(Long id) {
-        QueryWrapper<UmsAdmin> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("id", id);
+        LambdaQueryWrapper<UmsAdmin> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(UmsAdmin::getId, id);
 
         return umsAdminMapper.selectOne(queryWrapper);
 
@@ -166,8 +168,14 @@ public class UmsAdminServiceImpl extends ServiceImpl<UmsAdminMapper, UmsAdmin> i
     @Override
     public List<UmsAdmin> list(String keyword, Integer pageNum, Integer pageSize) {
         PageHelper.startPage(pageNum, pageSize);
-        QueryWrapper<UmsAdmin> queryWrapper = new QueryWrapper<>();
-        queryWrapper.like("username",keyword).or().like("nick_name", keyword);
+        LambdaQueryWrapper<UmsAdmin> queryWrapper = new LambdaQueryWrapper<>();
+        if (!StrUtil.isEmpty(keyword))
+        {
+            queryWrapper.like(UmsAdmin::getUsername,keyword)
+                    .or()
+                    .like(UmsAdmin::getNickName, keyword);
+        }
+
 
         return umsAdminMapper.selectList(queryWrapper);
     }
@@ -175,18 +183,52 @@ public class UmsAdminServiceImpl extends ServiceImpl<UmsAdminMapper, UmsAdmin> i
     @Override
     public int update(Long id, UmsAdmin umsAdmin) {
         umsAdmin.setId(id);
-        QueryWrapper<UmsAdmin> queryWrapper = new QueryWrapper<>();
-        return 0;
+        UmsAdmin newAdmin = umsAdminMapper.selectById(id);
+        if (umsAdmin.getPassword().equals(newAdmin.getPassword()))
+        {
+            //与原始密码相同的不需要修改
+            umsAdmin.setPassword(null);
+        }
+        else {
+            if (StrUtil.isEmpty(umsAdmin.getPassword())){
+                umsAdmin.setPassword(null);
+            }
+            else {
+                umsAdmin.setPassword(passwordEncoder.encode(umsAdmin.getPassword()));
+            }
+        }
+
+        return umsAdminMapper.updateById(umsAdmin);
     }
 
     @Override
     public int delete(Long id) {
-        return 0;
+        return umsAdminMapper.deleteById(id);
     }
 
     @Override
     public int updateRole(Long adminId, List<Long> roleIds) {
-        return 0;
+
+        int count = roleIds==null?0 :roleIds.size();
+
+        LambdaQueryWrapper<UmsAdminRoleRelation> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(UmsAdminRoleRelation::getAdminId, adminId);
+        adminRoleRelationMapper.delete(queryWrapper);
+        //建立新的关系
+        if (!CollectionUtils.isEmpty(roleIds))
+        {
+            List<UmsAdminRoleRelation> umsAdminRoleRelationList = new ArrayList<>();
+            for (Long roleId : roleIds){
+                UmsAdminRoleRelation umsAdminRoleRelation = new UmsAdminRoleRelation();
+                umsAdminRoleRelation.setAdminId(adminId);
+                umsAdminRoleRelation.setRoleId(roleId);
+                umsAdminRoleRelationList.add(umsAdminRoleRelation);
+                umsAdminRoleRelationDao.insertList(umsAdminRoleRelationList);
+        }
+
+
+        }
+        return count;
     }
 
     @Override
@@ -216,8 +258,14 @@ public class UmsAdminServiceImpl extends ServiceImpl<UmsAdminMapper, UmsAdmin> i
     }
 
     @Override
-    public UmsAdmin getUserByUsername(String username) {
-        return null;
+    public UserDetails loadUserByUsername(String username) {
+        UmsAdmin umsAdmin = getAdminByUsername(username);
+        if (umsAdmin !=null){
+            List<UmsResource> resourceList = getResourceList(umsAdmin.getId());
+            //return new LoginUser(umsAdmin,resourceList);
+            return  null;
+        }
+        throw new UsernameNotFoundException("用户名或密码错误");
     }
 
     @Override

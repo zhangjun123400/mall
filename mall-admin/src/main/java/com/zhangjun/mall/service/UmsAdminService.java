@@ -118,7 +118,7 @@ public interface UmsAdminService extends IService<UmsAdmin> {
          * @param username
          * @return
          */
-        UmsAdmin getUserByUsername(String username);
+        UserDetails loadUserByUsername(String username);
 
 
         /**

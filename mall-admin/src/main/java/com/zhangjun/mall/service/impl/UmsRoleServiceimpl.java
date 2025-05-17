@@ -57,7 +57,7 @@ public class UmsRoleServiceimpl implements UmsRoleService {
 
     @Override
     public int delete(List<Long> ids) {
-        int count= umsRoleMapper.deleteByIds(ids);
+        int count= umsRoleMapper.deleteBatchIds(ids);
         umsAdminCacheService.delResourceListByRoleIds(ids);
         return count;
     }
