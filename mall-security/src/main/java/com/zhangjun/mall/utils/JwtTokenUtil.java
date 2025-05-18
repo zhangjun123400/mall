@@ -130,12 +130,16 @@ public class JwtTokenUtil {
      * @return
      */
     public String getUserNameFromToken(String token){
+
         String userName;
         try {
             Claims claims = parseJWT(token);
-            String subject=claims.getSubject();
-            UserDetails loginUser = JSON.parseObject(subject, UserDetails.class);
-            userName = loginUser.getUsername();
+            String subject= claims.getSubject();
+            //UserDetails loginUser = JSON.parseObject(subject, UserDetails.class);
+
+            //userName = loginUser.getUsername();
+            userName =  JSON.parseObject(subject, String.class);
+
         } catch (Exception e) {
             userName = null;
         }

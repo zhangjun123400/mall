@@ -19,16 +19,6 @@
 			<groupId>com.zhangjun.mall</groupId>
 			<artifactId>mall-mbg</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>mybatis-spring-boot-starter</artifactId>
-					<groupId>org.mybatis.spring.boot</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>pagehelper-spring-boot-starter</artifactId>
-					<groupId>com.github.pagehelper</groupId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -71,6 +61,14 @@
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 			<version>2.8.6</version>
 		</dependency>
+
+		<!-- 添加 pagehelper 依赖 -->
+		<dependency>
+			<groupId>com.github.pagehelper</groupId>
+			<artifactId>pagehelper-spring-boot-starter</artifactId>
+			<version>${pagehelper-starter.version}</version> <!-- 请根据实际情况选择合适的版本 -->
+		</dependency>
+
 	</dependencies>
 
 	<build>

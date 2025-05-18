@@ -95,7 +95,7 @@ public class UmsAdminServiceImpl extends ServiceImpl<UmsAdminMapper, UmsAdmin> i
         LoginUser loginUser = (LoginUser) authentication.getPrincipal();
 
         //生成jwt,使用fastjson的方法，把对象转程字符串
-        String loginUserString = JSON.toJSONString(loginUser);
+        String loginUserString = JSON.toJSONString(loginUser.getUsername());
 
         //生成令牌
         String token = jwtTokenUtil.createJWT(loginUserString);
