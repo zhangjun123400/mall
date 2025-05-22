@@ -96,6 +96,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         }
 
         //redis进行校验
+        token = token.substring(7);
         Object redisStr = redisService.get("token_"+token);
 
         if (ObjectUtils.isEmpty(redisStr)) {

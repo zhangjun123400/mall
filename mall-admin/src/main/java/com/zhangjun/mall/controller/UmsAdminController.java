@@ -27,6 +27,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,10 +70,9 @@ public class UmsAdminController {
 
     @Operation(summary = "用户登陆")
     @RequestMapping(value = "/login",method = RequestMethod.POST)
-    @PreAuthorize("permitAll()")
+    @ResponseBody
     public CommonResult login(@Validated @RequestBody UmsAdminParam umsAdminParam) {
         Map<String,String> map =  umsAdminService.login(umsAdminParam);
-
 
         if (!map.get("token").isEmpty() && !map.get("username").isEmpty())
         {
@@ -106,19 +106,18 @@ public class UmsAdminController {
     @Operation(summary = "获取当前登录用户信息")
     @RequestMapping(value = "/info",method = RequestMethod.GET)
     @ResponseBody
-    @PreAuthorize("hasAuthority('/product/**')")
-    public CommonResult getAdminInfo(@Validated @RequestBody UmsAdminParam umsAdminParam){
-        if (umsAdminParam==null){
+    public CommonResult getAdminInfo(Principal principal){
+        if (principal==null){
             return CommonResult.unauthorized(null);
         }
 
-        String userName = umsAdminParam.getUsername();
+        String userName = principal.getName();
         UmsAdmin umsAdmin = umsAdminService.getAdminByUsername(userName);
 
         Map<String, Object> data = new HashMap<>();
 
         data.put("username",umsAdmin.getUsername());
-        data.put("menu",umsRoleService.getMenuList(umsAdmin.getId()));
+        data.put("menus",umsRoleService.getMenuList(umsAdmin.getId()));
         data.put("icon", umsAdmin.getIcon());
         List<UmsRole> roleList = umsAdminService.getRoleList(umsAdmin.getId());
         if (CollUtil.isNotEmpty(roleList))

@@ -34,10 +34,9 @@ public interface UmsAdminRoleRelationDao {
      * @param adminId
      * @return
      */
-    @Select("SELECT t1.* FROM ums_role t1 \n" +
-            "INNER JOIN ums_admin_role_relation t2 ON t1.id=t2.role_id\n" +
-            "INNER JOIN ums_admin t3 ON t3.id = t2.admin_id\n" +
-            "where t3.id = #{adminId}")
+    @Select("SELECT t1.* FROM ums_role t1\n" +
+            "INNER JOIN ums_admin_role_relation t2 ON t1.id = t2.role_id\n" +
+            "WHERE t2.admin_id=  #{adminId}")
     List<UmsRole> getRoleListByAdminId(@Param("adminId") Long adminId);
 
     /**
@@ -45,31 +44,28 @@ public interface UmsAdminRoleRelationDao {
      * @param adminId
      * @return
      */
-    @Select("SELECT t1.* FROM ums_resource t1\n" +
+    @Select("SELECT t1.id id,\n" +
+            "t1.create_time createTime,\n" +
+            "t1.name name,\n" +
+            "t1.url url,\n" +
+            "t1.description description,\n" +
+            "t1.category_id categoryId\n" +
+            " FROM ums_resource t1\n" +
             "INNER JOIN ums_role_resource_relation t2 ON t1.id = t2.resource_id\n" +
             "INNER JOIN ums_role t3 ON t3.id = t2.role_id\n" +
             "INNER JOIN ums_admin_role_relation t4 ON t4.role_id = t3.id\n" +
-            "INNER JOIN ums_admin t5 ON t5.id = t4.admin_id\n" +
-            "where t5.id =#{adminId}")
+            "where t4.admin_id =#{adminId}\n" +
+            "and t1.id IS NOT NULL\n" +
+            "GROUP BY t1.id")
     List<UmsResource> getResourceListByAdminId(@Param("adminId") Long adminId);
 
-    @Select("SELECT t1.url FROM ums_resource t1\n" +
-            "INNER JOIN ums_role_resource_relation t2 ON t1.id = t2.resource_id\n" +
-            "INNER JOIN ums_role t3 ON t3.id = t2.role_id\n" +
-            "INNER JOIN ums_admin_role_relation t4 ON t4.role_id = t3.id\n" +
-            "INNER JOIN ums_admin t5 ON t5.id = t4.admin_id\n" +
-            "where t5.id =#{adminId}")
-    List<String> getResourceListByAdminId1(@Param("adminId") Long adminId);
     /**
      * 获取资源相关用户ID列表
      * @param resourceId
      * @return
      */
-    @Select("SELECT t1.id FROM ums_admin t1 \n" +
-            "INNER JOIN ums_admin_role_relation t2 ON t2.admin_id=t1.id\n" +
-            "INNER JOIN ums_role t3 ON t3.id = t2.role_id\n" +
-            "INNER JOIN ums_role_resource_relation t4 ON t4.role_id = t3.id\n" +
-            "INNER JOIN ums_resource t5 ON t5.id = t4.resource_id\n" +
-            "where t5.id=#{resourceId}")
+    @Select("SELECT t1.admin_id FROM ums_admin_role_relation t1\n" +
+            "INNER JOIN ums_role_resource_relation t2 ON t1.role_id = t2.role_id\n" +
+            "where t2.resource_id=#{resourceId}")
     List<Long> getAdminIdList(@Param("resourceId") Long resourceId);
 }

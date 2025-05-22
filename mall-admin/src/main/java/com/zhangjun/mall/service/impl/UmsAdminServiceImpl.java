@@ -4,36 +4,40 @@ import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.zhangjun.common.service.RedisService;
+import com.zhangjun.common.util.RequestUtil;
 import com.zhangjun.mall.dao.UmsAdminRoleRelationDao;
 import com.zhangjun.mall.dto.UmsAdminParam;
 import com.zhangjun.mall.dto.UpdateAdminPasswordParam;
 import com.zhangjun.mall.mapper.UmsAdminLoginLogMapper;
 import com.zhangjun.mall.mapper.UmsAdminMapper;
 import com.zhangjun.mall.mapper.UmsAdminRoleRelationMapper;
-import com.zhangjun.mall.model.UmsAdmin;
-import com.zhangjun.mall.model.UmsAdminRoleRelation;
-import com.zhangjun.mall.model.UmsResource;
-import com.zhangjun.mall.model.UmsRole;
+import com.zhangjun.mall.model.*;
 import com.zhangjun.mall.service.UmsAdminCacheService;
 import com.zhangjun.mall.service.UmsAdminService;
 import com.zhangjun.mall.utils.JwtTokenUtil;
 import com.zhangjun.mall.vo.LoginUser;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -60,6 +64,9 @@ public class UmsAdminServiceImpl extends ServiceImpl<UmsAdminMapper, UmsAdmin> i
     private UmsAdminMapper umsAdminMapper;
 
     @Autowired
+    private UmsAdminLoginLogMapper umsAdminLoginLogMapper;
+
+    @Autowired
     private UmsAdminRoleRelationMapper adminRoleRelationMapper;
 
     @Autowired
@@ -67,6 +74,9 @@ public class UmsAdminServiceImpl extends ServiceImpl<UmsAdminMapper, UmsAdmin> i
 
     @Autowired
     private UmsAdminRoleRelationDao umsAdminRoleRelationDao;
+
+    @Autowired
+    private UserDetailsService userDetailsService;
 
     @Override
     public UmsAdmin getAdminByUsername(String userName){
@@ -94,6 +104,8 @@ public class UmsAdminServiceImpl extends ServiceImpl<UmsAdminMapper, UmsAdmin> i
         //如果认证成功，就从authentication对象的getPrincipal方法中拿到认证通过后的登陆用户对象
         LoginUser loginUser = (LoginUser) authentication.getPrincipal();
 
+
+
         //生成jwt,使用fastjson的方法，把对象转程字符串
         String loginUserString = JSON.toJSONString(loginUser.getUsername());
 
@@ -110,7 +122,50 @@ public class UmsAdminServiceImpl extends ServiceImpl<UmsAdminMapper, UmsAdmin> i
         map.put("token",token);
         map.put("username",loginUser.getUsername());
 
+        //更新登陆时间
+        UmsAdmin umsAdmin = this.getAdminByUsername(umsAdminParam.getUsername());
+        umsAdmin.setLoginTime(LocalDateTime.now());
+        this.update(umsAdmin.getId(),umsAdmin);
+
+
+        insertLoginLog(umsAdmin);
+
+        //添加登陆日志
         return map;
+    }
+
+    /**
+     * 添加登陆信息
+     * @param umsAdmin
+     */
+    private void insertLoginLog(UmsAdmin umsAdmin){
+        if (umsAdmin==null) return;
+        UmsAdminLoginLog loginLog = new UmsAdminLoginLog();
+        loginLog.setAdminId(umsAdmin.getId());
+        loginLog.setCreateTime(LocalDateTime.now());
+        ServletRequestAttributes attributes = (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = null;
+        if (attributes != null) {
+
+            request = attributes.getRequest();
+            String loginIP = RequestUtil.getRequestIp(request);
+            loginLog.setIp(loginIP);
+
+            String userAgent = request.getHeader("User-Agent"); // 获取原始 User-Agent 字符串 :ml-citation{ref="2,4" data="citationList"}
+            loginLog.setUserAgent(userAgent);
+
+            String mac = null;
+            try {
+                mac = RequestUtil.getMac(loginIP);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            loginLog.setAddress(mac);
+
+        }
+
+        umsAdminLoginLogMapper.insert(loginLog);
     }
 
 
@@ -167,15 +222,15 @@ public class UmsAdminServiceImpl extends ServiceImpl<UmsAdminMapper, UmsAdmin> i
 
     @Override
     public List<UmsAdmin> list(String keyword, Integer pageNum, Integer pageSize) {
-        PageHelper.startPage(pageNum, pageSize);
-        LambdaQueryWrapper<UmsAdmin> queryWrapper = new LambdaQueryWrapper<>();
-        if (!StrUtil.isEmpty(keyword))
-        {
-            queryWrapper.like(UmsAdmin::getUsername,keyword)
-                    .or()
-                    .like(UmsAdmin::getNickName, keyword);
-        }
 
+        PageHelper.startPage(pageNum, pageSize);
+        LambdaQueryWrapper<UmsAdmin> queryWrapper = new LambdaQueryWrapper<>();;
+            if (!StrUtil.isEmpty(keyword)) {
+                queryWrapper =queryWrapper.like(UmsAdmin::getUsername, keyword)
+                        .or()
+                        .like(UmsAdmin::getNickName, keyword);
+
+            } 
 
         return umsAdminMapper.selectList(queryWrapper);
     }

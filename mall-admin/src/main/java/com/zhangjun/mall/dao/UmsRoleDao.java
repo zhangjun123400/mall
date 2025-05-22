@@ -19,12 +19,23 @@ public interface UmsRoleDao {
      * @param adminId
      * @return
      */
-    @Select("SELECT t1.* FROM ums_menu t1 \n" +
+    @Select("SELECT\n" +
+            "t1.id id,\n" +
+            "t1.parent_id parentId,\n" +
+            "t1.create_time createTime,\n" +
+            "t1.title title,\n" +
+            "t1.`level` level,\n" +
+            "t1.sort sort,\n" +
+            "t1.`name` name,\n" +
+            "t1.icon icon,\n" +
+            "t1.hidden hidden\n" +
+            "FROM\n" +
+            "ums_menu t1\n" +
             "INNER JOIN ums_role_menu_relation t2 ON t1.id = t2.menu_id\n" +
-            "INNER JOIN ums_role t3 ON t3.id=t2.role_id\n" +
-            "INNER JOIN ums_admin_role_relation t4 ON t4.role_id = t3.id\n" +
-            "INNER JOIN ums_admin t5 ON t5.id = t4.admin_id\n" +
-            "WHERE t5.id=#{adminId}")
+            "INNER JOIN ums_role t3 ON t3.id = t2.role_id\n" +
+            "INNER JOIN ums_admin_role_relation t4 ON t4.role_id = t3.id \n" +
+            "WHERE\n" +
+            "t4.admin_id = #{adminId} AND t1.id IS NOT NULL GROUP BY t1.id")
     List<UmsMenu> getMenuList(@Param("adminId") Long adminId);
 
 

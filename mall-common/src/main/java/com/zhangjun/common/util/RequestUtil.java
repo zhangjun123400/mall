@@ -3,6 +3,7 @@ package com.zhangjun.common.util;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.UnknownHostException;
 
 /**
@@ -30,10 +31,11 @@ public class RequestUtil {
                 InetAddress inetAddress = null;
                 try {
                     inetAddress = InetAddress.getLocalHost();
+                    ipAddress = inetAddress.getHostAddress();
                 } catch (UnknownHostException e) {
                     e.printStackTrace();
                 }
-                ipAddress = inetAddress.getHostAddress();
+
             }
         }
         // 通过多个代理转发的情况，第一个IP为客户端真实IP，多个IP会按照','分割
@@ -43,6 +45,24 @@ public class RequestUtil {
             }
         }
         return ipAddress;
+    }
+
+    /**
+     * 通过IP地址获取MAC
+     * @param ip
+     * @return
+     * @throws Exception
+     */
+    public static String getMac(String ip) throws Exception {
+        InetAddress address = InetAddress.getByName(ip);
+        NetworkInterface network = NetworkInterface.getByInetAddress(address);
+        byte[] mac = network.getHardwareAddress();
+        if (mac==null) return "未获取MAC地址";
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < mac.length; i++) {
+            sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
+        }
+        return sb.toString();
     }
 
 }

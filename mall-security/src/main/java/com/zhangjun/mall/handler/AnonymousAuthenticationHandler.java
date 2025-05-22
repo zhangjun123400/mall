@@ -29,6 +29,8 @@ public class AnonymousAuthenticationHandler implements AuthenticationEntryPoint 
 
         //设置客户端响应的内容类型
         response.setContentType("application/json;charset=utf-8");
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Cache-Control","no-cache");
 
         //response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
         //通过输出流
@@ -49,10 +51,7 @@ public class AnonymousAuthenticationHandler implements AuthenticationEntryPoint 
         }else {
             //调用这个fastjson 进行CommonResult对象的序列化
             jsonString = JSON.toJSONString(CommonResult.forbidden("匿名用户无权限访问"), SerializerFeature.DisableCircularReferenceDetect);
-            System.out.println("============");
-            System.out.println("authException: "+authException.getClass().getName());
-            System.out.println("============");
-            authException.printStackTrace();
+
         }
 
         outputStream.write(jsonString.getBytes(StandardCharsets.UTF_8));

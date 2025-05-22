@@ -30,6 +30,8 @@ public class CustomerAccessDeniedHandler implements AccessDeniedHandler {
 
         //设置客户端响应的内容类型
         response.setContentType("application/json;charset=utf-8");
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Cache-Control","no-cache");
 
         //通过输出流
         ServletOutputStream outputStream = response.getOutputStream();
