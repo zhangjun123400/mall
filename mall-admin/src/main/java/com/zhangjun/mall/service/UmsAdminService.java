@@ -1,6 +1,7 @@
 package com.zhangjun.mall.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.zhangjun.mall.dto.UmsAdminLoginParam;
 import com.zhangjun.mall.dto.UmsAdminParam;
 import com.zhangjun.mall.dto.UpdateAdminPasswordParam;
 import com.zhangjun.mall.model.UmsAdmin;
@@ -30,10 +31,10 @@ public interface UmsAdminService extends IService<UmsAdmin> {
 
         /**
          * * 登录功能
-         * @param umsAdminParam
+         * @param umsAdminLoginParam
          * @return
          */
-        Map<String,String> login(UmsAdminParam umsAdminParam);
+        Map<String,String> login(UmsAdminLoginParam umsAdminLoginParam);
 
         /**
          * 注册功能

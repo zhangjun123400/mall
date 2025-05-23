@@ -10,6 +10,7 @@ import com.github.pagehelper.PageHelper;
 import com.zhangjun.common.service.RedisService;
 import com.zhangjun.common.util.RequestUtil;
 import com.zhangjun.mall.dao.UmsAdminRoleRelationDao;
+import com.zhangjun.mall.dto.UmsAdminLoginParam;
 import com.zhangjun.mall.dto.UmsAdminParam;
 import com.zhangjun.mall.dto.UpdateAdminPasswordParam;
 import com.zhangjun.mall.mapper.UmsAdminLoginLogMapper;
@@ -88,11 +89,11 @@ public class UmsAdminServiceImpl extends ServiceImpl<UmsAdminMapper, UmsAdmin> i
     }
 
     @Override
-    public Map<String,String> login(UmsAdminParam umsAdminParam) {
+    public Map<String,String> login(UmsAdminLoginParam umsAdminLoginParam) {
 
         //不需要连接数据库
         //把登陆时候的用户名和密码封装成一个UsernamePasswordAuthenticationToken对象
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(umsAdminParam.getUsername(),umsAdminParam.getPassword());
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(umsAdminLoginParam.getUsername(),umsAdminLoginParam.getPassword());
 
         //通过AuthenticationManager的authenticate方法来进行用户认证
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
@@ -123,7 +124,7 @@ public class UmsAdminServiceImpl extends ServiceImpl<UmsAdminMapper, UmsAdmin> i
         map.put("username",loginUser.getUsername());
 
         //更新登陆时间
-        UmsAdmin umsAdmin = this.getAdminByUsername(umsAdminParam.getUsername());
+        UmsAdmin umsAdmin = this.getAdminByUsername(umsAdminLoginParam.getUsername());
         umsAdmin.setLoginTime(LocalDateTime.now());
         this.update(umsAdmin.getId(),umsAdmin);
 

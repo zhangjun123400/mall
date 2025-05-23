@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import com.zhangjun.common.api.CommonPage;
 import com.zhangjun.common.api.CommonResult;
 import com.zhangjun.common.service.RedisService;
+import com.zhangjun.mall.dto.UmsAdminLoginParam;
 import com.zhangjun.mall.dto.UmsAdminParam;
 import com.zhangjun.mall.exception.CustomerAuthenticationException;
 import com.zhangjun.mall.model.UmsAdmin;
@@ -71,8 +72,8 @@ public class UmsAdminController {
     @Operation(summary = "用户登陆")
     @RequestMapping(value = "/login",method = RequestMethod.POST)
     @ResponseBody
-    public CommonResult login(@Validated @RequestBody UmsAdminParam umsAdminParam) {
-        Map<String,String> map =  umsAdminService.login(umsAdminParam);
+    public CommonResult login(@Validated @RequestBody UmsAdminLoginParam umsAdminLoginParam) {
+        Map<String,String> map =  umsAdminService.login(umsAdminLoginParam);
 
         if (!map.get("token").isEmpty() && !map.get("username").isEmpty())
         {

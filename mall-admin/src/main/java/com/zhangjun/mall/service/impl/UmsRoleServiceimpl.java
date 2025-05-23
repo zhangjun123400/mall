@@ -1,6 +1,7 @@
 package com.zhangjun.mall.service.impl;
 
 import com.alibaba.druid.util.StringUtils;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
 import com.zhangjun.mall.dao.UmsRoleDao;
@@ -96,8 +97,8 @@ public class UmsRoleServiceimpl implements UmsRoleService {
     @Override
     public int allocMenu(Long roleId, List<Long> menuIds) {
         //先删除原有关系
-        QueryWrapper<UmsRoleMenuRelation> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("role_id",roleId);
+        LambdaQueryWrapper<UmsRoleMenuRelation> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(UmsRoleMenuRelation::getRoleId,roleId);
         umsRoleMenuRelationMapper.delete(queryWrapper);
 
         //新增新的关系
@@ -114,8 +115,8 @@ public class UmsRoleServiceimpl implements UmsRoleService {
     @Override
     public int allocResource(Long roleId, List<Long> resourceIds) {
         //先删除原有资源
-        QueryWrapper<UmsRoleResourceRelation> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("role_id",roleId);
+        LambdaQueryWrapper<UmsRoleResourceRelation> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(UmsRoleResourceRelation::getRoleId,roleId);
         umsRoleResourceRelationMapper.delete(queryWrapper);
 
         //新增新有资源

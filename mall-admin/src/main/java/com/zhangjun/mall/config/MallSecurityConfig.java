@@ -26,9 +26,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class MallSecurityConfig{
 
     @Autowired
-    private UmsAdminService adminService;
-
-    @Autowired
     private UmsResourceService umsResourceService;
 
 
