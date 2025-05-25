@@ -9,6 +9,7 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -17,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * mall-security模块相关配置
@@ -28,7 +30,6 @@ public class MallSecurityConfig{
     @Autowired
     private UmsResourceService umsResourceService;
 
-
     @Bean
     public DynamicSecurityService dynamicSecurityService(){
         return new DynamicSecurityService() {
@@ -36,10 +37,21 @@ public class MallSecurityConfig{
             public Map<String, ConfigAttribute> loadDataSource() {
                 Map<String,ConfigAttribute> map = new ConcurrentHashMap<>();
                 List<UmsResource> resourceList = umsResourceService.listAll();
-                for (UmsResource umsResource : resourceList){
-                    map.put(umsResource.getUrl(),new org.springframework.security.access.SecurityConfig(umsResource.getId()+":"+umsResource.getName()));
+                /**
+                 * 用Stream方式替代
+                for (UmsResource umsResource : resourceList) {
+                    if (!"/admin/logout".equals(umsResource.getUrl())) {
+                        map.put(umsResource.getUrl(), new org.springframework.security.access.SecurityConfig(umsResource.getId() + ":" + umsResource.getName()));
+                    }
                 }
+                 */
+
+                map = resourceList.stream().filter(umsResource->!"/admin/logout".equals(umsResource.getUrl()))
+                        .collect(Collectors.toMap(UmsResource::getUrl,resource-> new org.springframework.security.access.SecurityConfig(resource.getId() + ":" + resource.getName())));
+
                 return map;
+
+
             }
         };
     }

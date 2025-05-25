@@ -49,7 +49,7 @@ public interface UmsMenuService {
      * @param pageNum
      * @return
      */
-    List<UmsMenu> list(Long parentId,Integer pageSize,Integer pageNum);
+    List<UmsMenu> list(Long parentId,Integer pageNum , Integer pageSize);
 
     /**
      * 树形结构返回所有的菜单列表

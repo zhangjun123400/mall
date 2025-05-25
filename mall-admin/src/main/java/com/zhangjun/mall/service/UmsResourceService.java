@@ -59,4 +59,6 @@ public interface UmsResourceService {
      * @return
      */
     List<UmsResource> listAll();
+
+    public UmsAdminCacheService getCacheService();
 }

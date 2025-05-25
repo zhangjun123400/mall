@@ -1,11 +1,14 @@
 package com.zhangjun.mall.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
 import com.zhangjun.mall.mapper.UmsResourceMapper;
 import com.zhangjun.mall.model.UmsResource;
+import com.zhangjun.mall.service.UmsAdminCacheService;
 import com.zhangjun.mall.service.UmsResourceService;
+import com.zhangjun.mall.utils.SpringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +36,7 @@ public class UmsResourceServiceImpl implements UmsResourceService {
     @Override
     public int update(Long id, UmsResource umsResource) {
         umsResource.setId(id);
+        getCacheService().delResourceByResource(id);
         return umsResourceMapper.updateById(umsResource);
     }
 
@@ -43,17 +47,30 @@ public class UmsResourceServiceImpl implements UmsResourceService {
 
     @Override
     public int delete(Long id) {
+        getCacheService().delResourceByResource(id);
         return umsResourceMapper.deleteById(id);
     }
 
     @Override
     public List<UmsResource> list(Long categoryId, String nameKeyword, String urlKeyword, Integer pageSize, Integer pageNum) {
         PageHelper.startPage(pageNum, pageSize);
+
         LambdaQueryWrapper<UmsResource> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(UmsResource::getCategoryId,categoryId)
-                .like(UmsResource::getName,nameKeyword)
-                .or()
-                .like(UmsResource::getUrl,urlKeyword);
+
+        if (categoryId !=null){
+            queryWrapper.eq(UmsResource::getCategoryId,categoryId);
+        }
+
+        if (StrUtil.isNotEmpty(nameKeyword) || StrUtil.isNotEmpty(urlKeyword)){
+            queryWrapper.and(wrapper -> {
+                if (StrUtil.isNotEmpty(nameKeyword)){
+                    wrapper.like(UmsResource::getName,nameKeyword);
+                }
+                if (StrUtil.isNotEmpty(urlKeyword)){
+                    wrapper.or().like(UmsResource::getUrl,urlKeyword);
+                }
+            });
+        }
 
         return umsResourceMapper.selectList(queryWrapper);
     }
@@ -62,5 +79,10 @@ public class UmsResourceServiceImpl implements UmsResourceService {
     public List<UmsResource> listAll() {
         QueryWrapper<UmsResource> queryWrapper = new QueryWrapper<>();
         return umsResourceMapper.selectList(queryWrapper);
+    }
+
+    @Override
+    public UmsAdminCacheService getCacheService() {
+        return SpringUtil.getBean(UmsAdminCacheService.class);
     }
 }

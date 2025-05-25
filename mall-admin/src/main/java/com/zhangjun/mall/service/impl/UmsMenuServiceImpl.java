@@ -71,7 +71,7 @@ public class UmsMenuServiceImpl implements UmsMenuService {
     }
 
     @Override
-    public List<UmsMenu> list(Long parentId, Integer pageSize, Integer pageNum) {
+    public List<UmsMenu> list(Long parentId, Integer pageNum , Integer pageSize) {
         PageHelper.startPage(pageNum,pageSize);
         LambdaQueryWrapper<UmsMenu> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(UmsMenu::getParentId,parentId).orderByDesc(UmsMenu::getSort);

@@ -97,7 +97,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
         //redis进行校验
         token = token.substring(7);
-        Object redisStr = redisService.get("token_"+token);
+        Object redisStr = redisService.get("mall:token:"+token);
 
         if (ObjectUtils.isEmpty(redisStr)) {
             throw new CustomerAuthenticationException("redis中无,token已经过期");

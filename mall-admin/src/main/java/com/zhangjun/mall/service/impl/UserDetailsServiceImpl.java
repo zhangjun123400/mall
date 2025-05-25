@@ -1,13 +1,18 @@
 package com.zhangjun.mall.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zhangjun.mall.dao.UmsAdminRoleRelationDao;
 import com.zhangjun.mall.mapper.UmsAdminMapper;
 import com.zhangjun.mall.model.UmsAdmin;
 import com.zhangjun.mall.model.UmsResource;
+import com.zhangjun.mall.service.UmsAdminCacheService;
+import com.zhangjun.mall.service.UmsAdminService;
+import com.zhangjun.mall.utils.SpringUtil;
 import com.zhangjun.mall.vo.LoginUser;
 import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -24,11 +29,12 @@ import java.util.List;
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    @Resource
-    private UmsAdminMapper userMapper;
+    @Autowired
+    private UmsAdminMapper umsAdminMapper;
 
-    @Resource
+    @Autowired
     private UmsAdminRoleRelationDao umsAdminRoleRelationDao;
+
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -38,18 +44,32 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
 
         //1、连接数据库，根据用户名查询账号信息
-        LambdaQueryWrapper<UmsAdmin> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(UmsAdmin::getUsername, username);
+        UmsAdmin umsAdmin = getCacheService().getAdmin(username);
+        if (umsAdmin ==null) {
+            LambdaQueryWrapper<UmsAdmin> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(UmsAdmin::getUsername, username);
 
-        UmsAdmin user =userMapper.selectOne(queryWrapper);
-        if (user == null) {
+            umsAdmin = umsAdminMapper.selectOne(queryWrapper);
+        }
+
+        if (umsAdmin == null) {
             throw new UsernameNotFoundException("无该用户");
         }
 
         //2、赋权操作 活的数组 从数据库中获取
-        List<UmsResource> umsResourceList = umsAdminRoleRelationDao.getResourceListByAdminId(user.getId());
-        //List<String> urlList = umsAdminRoleRelationDao.getResourceListByAdminId1(user.getId());
+        List<UmsResource> resourceList = getCacheService().getResourceList(umsAdmin.getId());
+        if (CollUtil.isEmpty(resourceList)){
+            resourceList = umsAdminRoleRelationDao.getResourceListByAdminId(umsAdmin.getId());
+            if (CollUtil.isNotEmpty(resourceList)){
+                getCacheService().setResourceList(umsAdmin.getId(),resourceList);
+            }
+        }
         //3、返回UserDetails对象
-        return new LoginUser(user,umsResourceList);
+        return new LoginUser(umsAdmin,resourceList);
     }
+
+    public UmsAdminCacheService getCacheService() {
+        return SpringUtil.getBean(UmsAdminCacheService.class);
+    }
+
 }

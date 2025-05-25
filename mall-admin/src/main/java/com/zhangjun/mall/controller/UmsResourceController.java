@@ -32,7 +32,6 @@ public class UmsResourceController {
     private DynamicSecurityMetadataSource dynamicSecurityMetadataSource;
 
 
-
     @Operation(summary = "添加后台资源")
     @RequestMapping(value = "/create",method = RequestMethod.POST)
     public CommonResult create(@RequestBody UmsResource umsResource){

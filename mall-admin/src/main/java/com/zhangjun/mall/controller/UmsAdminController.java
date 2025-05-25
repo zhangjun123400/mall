@@ -137,13 +137,15 @@ public class UmsAdminController {
     {
 
         //在logout中要获取jwt
-        String token = request.getHeader("Authorization");
+        String token = request.getHeader("Authorization").substring(7);
+
         if(ObjectUtils.isEmpty(token)){
-            token = request.getParameter("token");
+            token = request.getParameter("token").substring(7);
         }
         if(ObjectUtils.isEmpty(token)){
             throw new CustomerAuthenticationException("token为空");
         }
+
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -151,20 +153,22 @@ public class UmsAdminController {
             //1、清除上下文
             new SecurityContextLogoutHandler().logout(request, response, authentication);
             //2、清除Redis
-            redisService.del("token_"+token);
+            redisService.del("mall:token:"+token);
+
 
         }
 
-        return CommonResult.success("用户退出成功");
+
+        return CommonResult.success(null);
     }
 
     @Operation(summary = "根据用户名或者姓名分页获取用户列表")
-    @RequestMapping(value = "/list",method = RequestMethod.POST)
+    @RequestMapping(value = "/list",method = RequestMethod.GET)
     @ResponseBody
     public CommonResult<CommonPage<UmsAdmin>> list(@RequestParam(value = "keyword",required = false) String keyword,
                                                    @RequestParam(value = "pageSize",defaultValue = "5") Integer pageSize,
                                                    @RequestParam(value = "pageNum",defaultValue = "1") Integer pageNum) {
-        List<UmsAdmin> adminList = umsAdminService.list(keyword,pageSize,pageNum);
+        List<UmsAdmin> adminList = umsAdminService.list(keyword,pageNum,pageSize);
         return CommonResult.success(CommonPage.restPage(adminList));
     }
 

@@ -30,7 +30,7 @@ public class UmsRoleServiceimpl implements UmsRoleService {
     private UmsRoleMapper umsRoleMapper;
 
     @Autowired
-    private UmsAdminCacheService umsAdminCacheService;
+    private UmsAdminCacheService adminCacheService;
 
     @Autowired
     private UmsRoleDao umsRoleDao;
@@ -58,8 +58,8 @@ public class UmsRoleServiceimpl implements UmsRoleService {
 
     @Override
     public int delete(List<Long> ids) {
-        int count= umsRoleMapper.deleteBatchIds(ids);
-        umsAdminCacheService.delResourceListByRoleIds(ids);
+        int count= umsRoleMapper.deleteByIds(ids);
+        adminCacheService.delResourceListByRoleIds(ids);
         return count;
     }
 
@@ -127,7 +127,7 @@ public class UmsRoleServiceimpl implements UmsRoleService {
             umsRoleResourceRelationMapper.insert(umsRoleResourceRelation);
         }
 
-        umsAdminCacheService.delResourceListByRole(roleId);
+        adminCacheService.delResourceListByRole(roleId);
         return resourceIds.size();
     }
 }

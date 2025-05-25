@@ -27,7 +27,7 @@ public class UmsResourceCategoryServiceImpl implements UmsResourceCategoryServic
 
         QueryWrapper<UmsResourceCategory> queryWrapper = new QueryWrapper<>();
         queryWrapper.orderByDesc("sort");
-        return umsResourceCategoryMapper.selectList(null);
+        return umsResourceCategoryMapper.selectList(queryWrapper);
     }
 
     @Override

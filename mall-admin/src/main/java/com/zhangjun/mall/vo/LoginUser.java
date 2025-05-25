@@ -1,6 +1,7 @@
 package com.zhangjun.mall.vo;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zhangjun.mall.model.UmsAdmin;
 import com.zhangjun.mall.model.UmsResource;
 import lombok.AllArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,7 +45,13 @@ public class LoginUser implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
+        /**
         return resourceList.stream().map(resource ->new SimpleGrantedAuthority(resource.getId()+":"+resource.getName()))
+                .collect(Collectors.toList());
+    */
+        return this.resourceList.stream()
+                .map(resource -> (UmsResource) resource)
+                .map(resource -> new SimpleGrantedAuthority(resource.getId() + ":" + resource.getName()))
                 .collect(Collectors.toList());
     }
 

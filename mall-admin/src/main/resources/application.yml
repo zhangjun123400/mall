@@ -28,6 +28,9 @@ secure:
       - /webjars/**
       - /v3/api-docs/**
       - /admin/login
+      - /admin/register
+      - /admin/logout
+      - /minio/upload
 
 logging:
   level:
