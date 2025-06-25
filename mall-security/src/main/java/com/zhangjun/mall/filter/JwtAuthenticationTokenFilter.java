@@ -96,7 +96,8 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         }
 
         //redis进行校验
-        Object redisStr = redisService.get("token_"+token);
+        token = token.substring(7);
+        Object redisStr = redisService.get("mall:token:"+token);
 
         if (ObjectUtils.isEmpty(redisStr)) {
             throw new CustomerAuthenticationException("redis中无,token已经过期");
@@ -107,10 +108,6 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         //校验令牌
         try {
 
-            //Claims claims =jwtUtil.parseJWT(token);
-            //String subject = claims.getSubject();
-            //把字符串转成loginUser对象
-            //loginUser =JSON.parseObject(subject, UserDetails.class);
             String username = jwtUtil.getUserNameFromToken(token);
             loginUser = userDetailsService.loadUserByUsername(username);
         } catch (Exception e) {

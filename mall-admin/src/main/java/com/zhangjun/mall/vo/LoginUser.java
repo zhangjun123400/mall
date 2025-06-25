@@ -1,6 +1,7 @@
 package com.zhangjun.mall.vo;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zhangjun.mall.model.UmsAdmin;
 import com.zhangjun.mall.model.UmsResource;
 import lombok.AllArgsConstructor;
@@ -12,7 +13,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Author zhangjun
@@ -27,34 +30,29 @@ public class LoginUser implements UserDetails {
    private UmsAdmin umsAdmin;
 
    //权限列表
-   private List<String> list;//select delete
+   private List<UmsResource> resourceList;//select delete
 
 
     //自定义一个权限列表的集合
     @JSONField(serialize=false)
     List<SimpleGrantedAuthority> authorities; //子类
 
-    public LoginUser(UmsAdmin umsAdmin, List<String> list) {
+    public LoginUser(UmsAdmin umsAdmin, List<UmsResource> resourceList) {
         this.umsAdmin = umsAdmin;
-        this.list = list;
+        this.resourceList = resourceList;
     }
     //权限列表
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        //父类
-        if (authorities != null) {
-            return authorities;
-        }
-        authorities = new ArrayList<>();
 
-        for (String umsResource :list)
-        {
-            //SimpleGrantedAuthority authority = new SimpleGrantedAuthority(umsResource.getId()+":"+umsResource.getName());
-            SimpleGrantedAuthority authority = new SimpleGrantedAuthority(umsResource);
-            authorities.add(authority);
-
-        };
-        return authorities;
+        /**
+        return resourceList.stream().map(resource ->new SimpleGrantedAuthority(resource.getId()+":"+resource.getName()))
+                .collect(Collectors.toList());
+    */
+        return this.resourceList.stream()
+                .map(resource -> (UmsResource) resource)
+                .map(resource -> new SimpleGrantedAuthority(resource.getId() + ":" + resource.getName()))
+                .collect(Collectors.toList());
     }
 
     //返回密码

@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.UUID;
@@ -62,7 +61,7 @@ public class JwtTokenUtil {
     //生成令牌
     /**
      * 生成UUID格式的JWT ID
-     * @return
+     *
      */
     public String getUUID()
     {
@@ -73,7 +72,7 @@ public class JwtTokenUtil {
     /**
      * 生成jwt
      * @param subject token中要存储的数据（json格式）
-     * @return
+     *
      */
     public String createJWT(String subject)
     {
@@ -130,12 +129,16 @@ public class JwtTokenUtil {
      * @return
      */
     public String getUserNameFromToken(String token){
+
         String userName;
         try {
             Claims claims = parseJWT(token);
-            String subject=claims.getSubject();
-            UserDetails loginUser = JSON.parseObject(subject, UserDetails.class);
-            userName = loginUser.getUsername();
+            String subject= claims.getSubject();
+            //UserDetails loginUser = JSON.parseObject(subject, UserDetails.class);
+
+            //userName = loginUser.getUsername();
+            userName =  JSON.parseObject(subject, String.class);
+
         } catch (Exception e) {
             userName = null;
         }

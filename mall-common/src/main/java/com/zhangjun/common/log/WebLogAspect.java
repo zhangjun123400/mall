@@ -40,7 +40,7 @@ import java.util.Map;
 public class WebLogAspect {
     private static final Logger LOGGER = LoggerFactory.getLogger(WebLogAspect.class);
 
-    @Pointcut("execution(public * com.zhangjun.controller.*.*(..))||execution(public * com.zhangjun.*.controller.*.*(..))")
+    @Pointcut("execution(public * com.zhangjun.mall.controller.*.*(..))||execution(public * com.zhangjun.*.controller.*.*(..))")
     public void webLog() {
     }
 

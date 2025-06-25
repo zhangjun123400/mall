@@ -11,6 +11,8 @@ spring:
       indent-output: true
       fail-on-empty-beans: false
 
+
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html

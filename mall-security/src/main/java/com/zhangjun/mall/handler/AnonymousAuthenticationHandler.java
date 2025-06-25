@@ -29,6 +29,8 @@ public class AnonymousAuthenticationHandler implements AuthenticationEntryPoint 
 
         //设置客户端响应的内容类型
         response.setContentType("application/json;charset=utf-8");
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Cache-Control","no-cache");
 
         //response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
         //通过输出流

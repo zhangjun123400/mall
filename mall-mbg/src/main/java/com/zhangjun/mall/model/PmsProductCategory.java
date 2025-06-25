@@ -19,7 +19,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@TableName("pms_product_category")
+@TableName(" ")
 @Schema(name = "PmsProductCategory", description = "产品分类")
 public class PmsProductCategory implements Serializable {
 
