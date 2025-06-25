@@ -24,11 +24,11 @@ import java.lang.reflect.Method;
 public class RedisCacheAspect {
     private static final Logger LOGGER = LoggerFactory.getLogger(RedisCacheAspect.class);
 
-    //@Pointcut("execution(public * com.zhangjun.mall.portal.service.*CacheService.*(..)) || execution(public * com.zhangjun.mall.service.*CacheService.*(..))")
+    @Pointcut("execution(public * com.zhangjun.mall.service.*CacheService.*(..))")
     public void cacheAspect() {
     }
 
-   // @Around("cacheAspect()")
+   @Around("cacheAspect()")
     public Object doAround(ProceedingJoinPoint joinPoint) throws Throwable {
         Signature signature = joinPoint.getSignature();
         MethodSignature methodSignature = (MethodSignature) signature;

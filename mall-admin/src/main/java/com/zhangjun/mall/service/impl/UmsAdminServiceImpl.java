@@ -134,10 +134,9 @@ public class UmsAdminServiceImpl extends ServiceImpl<UmsAdminMapper, UmsAdmin> i
         umsAdmin.setLoginTime(LocalDateTime.now());
         this.update(umsAdmin.getId(),umsAdmin);
 
-
+        //添加登陆日志
         insertLoginLog(umsAdmin);
 
-        //添加登陆日志
         return map;
     }
 

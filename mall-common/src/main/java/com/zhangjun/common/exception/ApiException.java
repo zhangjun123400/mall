@@ -2,6 +2,7 @@ package com.zhangjun.common.exception;
 
 
 import com.zhangjun.common.api.IErrorCode;
+import lombok.Getter;
 
 /**
  * 自定义API异常
